@@ -8,22 +8,9 @@
       $fileNavigation,
       $filesBubble,
       $filesTable,
+      $readme,
       $detailsContainer,
       $jsDirectoryLinks;
-
-  function initSelectors() {
-    // GHT DOM Elements
-    $ghtButton = $('<a>GH Tree</a>').addClass('minibutton ght-button');
-    $ghtButton.on('click', openTreeView);
-    $ghtFileView = $('<div></div>').attr('id', 'ght-file-view');
-
-    // GitHub DOM Elements
-    $fileNavigation = $('.file-navigation.in-mid-page');
-    $filesTable = $('table.files');
-    $filesBubble = $('.bubble.files-bubble');
-    $detailsContainer = $('.files-bubble .js-details-container');
-    $jsDirectoryLinks = $('.js-directory-link');
-  }
 
   function insertPjaxResponse(pjaxResponse) {
     var tmpFileNav = $(pjaxResponse).find('.file-navigation');
@@ -31,8 +18,6 @@
     // Swap out the file navigation section
     $fileNavigation.replaceWith(tmpFileNav);
     $fileNavigation = $('.file-navigation');
-    $fileNavigation.addClass('in-mid-page');
-    $fileNavigation.prepend($ghtButton);
 
     // Replace our file view w/ the given pjax response and remove the
     // file-history-tease section for cleanliness.
@@ -72,6 +57,8 @@
       openFile(this);
     }
 
+    $readme.remove();
+
     // Stop propagation as GH has their own click handler delegate to do
     // pjax stuffs. preventDefault to stop the fall back anchor tag.
     e.stopPropagation();
@@ -84,16 +71,53 @@
   }
 
   function openTreeView() {
-    $filesBubble.addClass('ght-files-bubble ght-clearfix');
+    // Setup our tree section
+    $filesBubble.addClass('ght-files-bubble');
     $detailsContainer.html('<h3>' + repoName + ' GH Tree </h3>');
     $filesTable.find('.message, .age').remove();
-    $jsDirectoryLinks.unbind('click');
+
+    // Bind our treeClick event
     $jsDirectoryLinks.on('click', treeClick);
 
+    // Insert our ghtFileView and the filesBubble, fileView, and README in our
+    // container view for styling.
     $filesBubble.after($ghtFileView);
-    $($filesBubble.selector + ', #ght-file-view').wrapAll('<div class="ght-container"></div>');
+    $($filesBubble.selector + ', #ght-file-view, #readme').wrapAll('<div class="ght-container"></div>');
 
-    $('#readme').remove();
+    // Move the README to the file view
+    $readme.addClass('ght-readme');
+
+    // Cleanup fileNavigation section
+    // - Remove GH Tree && pull request buttons 
+    // - Remove file-naviagtion top margin via removing .in-mid-page class
+    // - Swap new-file-link w/ README title
+    $('.ght-button').remove();
+    $('.new-file-link').replaceWith('<strong>README.md</strong>');
+    $fileNavigation.find('.minibutton.compact').remove();
+    $fileNavigation.removeClass('in-mid-page');
+
+    // Remove the unneeded headers && shrink the sidebar. Love that GH has this
+    // setup with a simple class! Made this super easy on me.
+    $('.repository-meta.js-details-container').remove();
+    $('.overall-summary ~ .tooltipped').remove();
+    $('.overall-summary').remove();
+    $('.repository-with-sidebar').removeClass('with-full-navigation');
+  }
+
+
+  function initSelectors() {
+    // GHT DOM Elements
+    $ghtButton = $('<a>GH Tree</a>').addClass('minibutton ght-button');
+    $ghtButton.on('click', openTreeView);
+    $ghtFileView = $('<div></div>').attr('id', 'ght-file-view');
+
+    // GitHub DOM Elements
+    $readme = $('#readme');
+    $fileNavigation = $('.file-navigation.in-mid-page');
+    $filesTable = $('table.files');
+    $filesBubble = $('.bubble.files-bubble');
+    $detailsContainer = $('.files-bubble .js-details-container');
+    $jsDirectoryLinks = $('.js-directory-link');
   }
 
   function init() {
