@@ -3,7 +3,7 @@ body {
 }
 
 .files-bubble {
-  margin: 0;
+  margin: 0 !important;
 }
 
 .files-bubble .js-details-container h3 {

@@ -5,6 +5,7 @@
       repoName   = $('.js-repo-home-link').text(),
       $ghtButton,
       $ghtFileView,
+      $fileNavigation,
       $filesBubble,
       $filesTable,
       $detailsContainer,
@@ -17,16 +18,33 @@
     $ghtFileView = $('<div></div>').attr('id', 'ght-file-view');
 
     // GitHub DOM Elements
+    $fileNavigation = $('.file-navigation.in-mid-page');
     $filesTable = $('table.files');
     $filesBubble = $('.bubble.files-bubble');
     $detailsContainer = $('.files-bubble .js-details-container');
     $jsDirectoryLinks = $('.js-directory-link');
   }
 
+  function insertPjaxResponse(pjaxResponse) {
+    var tmpFileNav = $(pjaxResponse).find('.file-navigation');
+
+    // Swap out the file navigation section
+    $fileNavigation.replaceWith(tmpFileNav);
+    $fileNavigation = $('.file-navigation');
+    $fileNavigation.addClass('in-mid-page');
+    $fileNavigation.prepend($ghtButton);
+
+    // Replace our file view w/ the given pjax response and remove the
+    // file-history-tease section for cleanliness.
+    $ghtFileView.html(pjaxResponse.innerHTML);
+    $('.file-history-tease').remove();
+  }
+
   function openFile(link) {
     // https://github.com/emberjs/ember.js/blob/master/packages/loader/package.json?_pjax=%23js-repo-pjax-container
     var $link = $(link),
-        pjaxUrl = "https://github.com" + $link.attr('href') + "?_pjax=" + window.encodeURIComponent('#ght-tree');
+        pjaxUrl = "https://github.com" + $link.attr('href') +
+          "?_pjax=" + window.encodeURIComponent('#ght-tree');
 
     console.log("pjaxUrl: ", pjaxUrl);
 
@@ -36,7 +54,7 @@
       headers: { 'X-PJAX': true, 'X-PJAX-Container': '#ght-tree' },
       success: function(data, textStatus, jqXHR) {
         var pjaxResponse = $(data)[2];
-        $ghtFileView.html(pjaxResponse.innerHTML);
+        insertPjaxResponse(pjaxResponse);
       }
     });
   }
@@ -80,7 +98,7 @@
 
   function init() {
     initSelectors();
-    $('.file-navigation.in-mid-page').prepend($ghtButton);
+    $fileNavigation.prepend($ghtButton);
   }
 
 
