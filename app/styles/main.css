@@ -1,3 +1,22 @@
 body {
     padding: 20px;
 }
+
+.files-bubble {
+  margin: 0;
+}
+
+.files-bubble .js-details-container h3 {
+  margin: 0 0 9px 0;
+}
+
+.ght-files-bubble {
+  width: 200px;
+  float: left;
+}
+
+#ght-file-view {
+  overflow: hidden;
+  padding-left: 8px;
+}
+
